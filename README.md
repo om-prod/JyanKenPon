@@ -4,6 +4,10 @@
 ### Compiling with [pyinstaller](https://pypi.org/project/pyinstaller/):
 
 ```
+git clone https://github.com/om-prod/JyanKenPon.git
+cd JyanKenPon
+pyinstaller main.py -F -n Jyankenpon -i jyankenpon.ico
+cd dist 
 ```
 
 #### The Two Gakis'
