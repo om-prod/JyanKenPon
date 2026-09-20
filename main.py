@@ -189,6 +189,9 @@ class BetGui(tk.Frame):
 		finished_rounds = 0
 		self.azusa_score_label.place(x=225, y=225)
 		self.ayane_score_label.place(x=365, y=225)		
+		self.azusa_score_label.config(text=azusa_score)
+		self.ayane_score_label.config(text=ayane_score)
+
 		try:
 			while finished_rounds != self.rounds and not self.thread_stop and self.window.winfo_children():
 				azusa = choice(choices)
@@ -203,12 +206,17 @@ class BetGui(tk.Frame):
 				elif result == 1:
 					ayane_score+=1
 					self.ayane_score_label.config(text=ayane_score)
+				else:
+					azusa_score+=.5
+					ayane_score+=.5
+					self.azusa_score_label.config(text=azusa_score)
+					self.ayane_score_label.config(text=ayane_score)
 				self.rounds_label.config(text=f"Round: {finished_rounds+1}")
-				self.rounds_label.tkraise()
+				self.rounds_label.tkraise() 
 				self.azusa_score_label.tkraise()
 				self.ayane_score_label.tkraise()
 				finished_rounds+=1
-				sleep(0.1)
+				sleep(0.25)
 		except RuntimeError:
 			pass
 		finally:
@@ -216,12 +224,19 @@ class BetGui(tk.Frame):
 
 		if true_finish:
 			print(f"[{star_green}] Match-Thread Ended; Rounds: {finished_rounds}/{self.rounds}")
+			
 			if azusa_score > ayane_score:
 				self.icon1_frame.config(bg="#c7fcae", image=self.shiawase_az)
 				self.azusa_score_label.config(bg="#c7fcae")
-			else:
+			elif ayane_score > azusa_score:
 				self.icon2_frame.config(bg="#c7fcae", image=self.shiawase_ay)
 				self.ayane_score_label.config(bg="#c7fcae")
+			if azusa_score == ayane_score:
+				self.icon1_frame.config(bg="#b6c3d9")
+				self.icon2_frame.config(bg="#b6c3d9")	
+				self.azusa_score_label.config(bg="#b6c3d9")
+				self.ayane_score_label.config(bg="#b6c3d9")
+
 			self.thread_stop = True
 			self.match_checker_btn.config(state=tk.ACTIVE, cursor="hand2")
 			self.window.config(cursor="ul_angle", bg="#FFFFFF")
