@@ -3,9 +3,7 @@
 import tkinter as tk
 from tkinter import messagebox
 from time import sleep
-from io import BytesIO
-from random import choice, randint
-from PIL import Image, ImageTk
+from random import choice
 from types import MethodType
 from threading import Thread
 
