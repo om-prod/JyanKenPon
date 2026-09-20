@@ -46,7 +46,8 @@ class Config:
 
 class HoverFrame(tk.Frame):
 	frame_obj = [] # Contains only one object which is this Frame
-	def __init__(self, text:str, widget_y: int, x_axis: int, y_axis: int, textSize: int | None = 15) -> None:
+	def __init__(self, text:str, widget_y: int, 
+				 x_axis: int, y_axis: int, textSize: int | None = 15) -> None:
 				# Offset the widget_y by 25 and continuosly offset the sum by the y axis-
 				# inside the frame.
 				# (140 + 25) + 2 		
@@ -77,7 +78,8 @@ class HoverFrame(tk.Frame):
 		cls.frame_obj.clear()
 
 class KeyBinds:
-	def __init__(self, defaultRoot: tk.Tk, binds: dict[str, dict[tk.Widget, MethodType]] | dict[str, MethodType]) -> None:
+	def __init__(self, defaultRoot: tk.Tk, 
+				 binds: dict[str, dict[tk.Widget, MethodType]] | dict[str, MethodType]) -> None:
 	    """
 	    To use a different frame/root, in binds you can add a dict,\n
 	    and place the method like:\n
@@ -133,9 +135,11 @@ class MatchesWindow(tk.Listbox):
 class BetGui(tk.Frame):
 	def __init__(self, window: tk.Tk, rounds: int, chosen_bot: int) -> None:
 		print(f"[{star_yellow}] Launched BetGui.")
+
 		self.window = window
-		self.window.geometry("600x350")
+		self.window.geometry("600x370")
 		self.window.config(cursor="watch", bg="#FFFFFF")
+		
 		self.azusa = tk.PhotoImage(data=azusa)
 		self.shiawase_az = tk.PhotoImage(data=shiawase_az)
 		self.ayane = tk.PhotoImage(data=ayane)
@@ -145,40 +149,72 @@ class BetGui(tk.Frame):
 		self.match_checker_btn = tk.Button(self.window, text="Check Match History", 
 									 	  font=("Arial", 15), bg="#FFFFFF", state=tk.DISABLED, 
 									 	  command=self.match_checking)
+		
+		self.spsl_frame = tk.Frame(self.window, bg="#FFFFFF")
+		self.speedup_btn = tk.Button(self.spsl_frame, text="+", font=("Arial", 15), bg="#FFFFFF",
+									 command=self.speedup, cursor="hand2")
+		self.slowdown_btn = tk.Button(self.spsl_frame, text="-", font=("Arial", 15), bg="#FFFFFF",
+									 command=self.slowdown, cursor="hand2")
+		self.speedup_btn.grid(row=0, column=0, sticky="news")
+		self.slowdown_btn.grid(row=0, column=1, sticky="news")
+
 		self.azusa_score_label = tk.Label(self.window, font=("Arial", 20), bg="#FFFFFF")
 		self.ayane_score_label = tk.Label(self.window, font=("Arial", 20), bg="#FFFFFF")
 
-		self.icon1_frame = tk.Label(
+		self.versus_label = tk.Label(self.window, text="VS", font=("Arial", 20), bg="#FFFFFF")
+		self.icon1_frame = tk.Label(self.window,
 									width=250, 
 									height=250, 
 									image=self.azusa,
 									bg="#FFFFFF")
-		self.icon1_label = tk.Label(text="Azusa", bg="#FFFFFF", font=("Arial", 15))
-		self.icon2_frame = tk.Label(
+		self.icon1_label = tk.Label(text="あずさ:", bg="#FFFFFF", font=("Arial", 15))
+		self.icon2_frame = tk.Label(self.window,
 									width=250, 
 									height=250, 
 									image=self.ayane,
 									bg="#FFFFFF")
-		self.icon2_label = tk.Label(text="Ayane", bg="#FFFFFF", font=("Arial", 15))
+		self.icon2_label = tk.Label(text="あやね:", bg="#FFFFFF", font=("Arial", 15))
 
-		self.rounds_label.place(x=25, y=300)
-		self.match_checker_btn.place(x=200, y=300)
-		self.match_checker_btn.tkraise()
+		self.spsl_frame.place(x=500, y=330)
+		self.rounds_label.place(x=25, y=330)
+		self.versus_label.place(x=280, y=150)
+		self.match_checker_btn.place(x=185, y=330)
+
+		self.icon1_label.place(x=50, y=285)
+		self.icon2_label.place(x=360, y=285)
 		self.icon1_frame.place(x=25, y=25)
 		self.icon2_frame.place(x=325, y=25)
-
-		self.match_checker_btn.config()
 
 		self.thread_stop = False
 		self.rounds = rounds
 		self.results = {}
 		self.selected = chosen_bot
+		self.match_speed = 0.30
+		self.max_speed = 0.30
+		self.min_speed = 0.10
 
 		self.bindings = {"window":{"Escape":self.keyboard_events}}
-		self.load()
+		self.binds = KeyBinds(self.window, self.bindings)
+		self.binds.attach()
+		game_thread = Thread(target=self.matches_start)
+		game_thread.start()
 
 	def match_checking(self) -> None:
 		MatchesWindow(self.results)
+
+	def speedup(self) -> None:
+		if (self.match_speed <= self.max_speed 
+			and self.match_speed > self.min_speed 
+			and not self.thread_stop):
+
+			self.match_speed-=0.05
+
+	def slowdown(self) -> None:
+		if (self.match_speed < self.max_speed
+		 	and self.match_speed >= self.min_speed-.05 
+		 	and not self.thread_stop):
+
+			self.match_speed+=0.05
 
 	def matches_start(self) -> None:
 		print(f"[{star_green}] Match-Thread Started; Rounds: {self.rounds}")
@@ -187,8 +223,9 @@ class BetGui(tk.Frame):
 		ayane_score = 0
 		true_finish = False
 		finished_rounds = 0
-		self.azusa_score_label.place(x=225, y=225)
-		self.ayane_score_label.place(x=365, y=225)		
+
+		self.azusa_score_label.place(x=25+100, y=280)
+		self.ayane_score_label.place(x=25+405, y=280)		
 		self.azusa_score_label.config(text=azusa_score)
 		self.ayane_score_label.config(text=ayane_score)
 
@@ -200,6 +237,12 @@ class BetGui(tk.Frame):
 				result = JyanKenPon(azusa, ayane).check()
 				self.results[f"{finished_rounds+1}"] = {"azusa":azusa, "ayane":ayane, "result":result}
 
+				if azusa_score > ayane_score:
+					self.icon1_label.config(bg="#c7fcae")
+					self.icon2_label.config(bg="#FFFFFF")
+				elif ayane_score > azusa_score:
+					self.icon2_label.config(bg="#c7fcae")
+					self.icon1_label.config(bg="#FFFFFF")
 				if result == 0:
 					azusa_score+=1
 					self.azusa_score_label.config(text=azusa_score)
@@ -211,12 +254,10 @@ class BetGui(tk.Frame):
 					ayane_score+=.5
 					self.azusa_score_label.config(text=azusa_score)
 					self.ayane_score_label.config(text=ayane_score)
+
 				self.rounds_label.config(text=f"Round: {finished_rounds+1}")
-				self.rounds_label.tkraise() 
-				self.azusa_score_label.tkraise()
-				self.ayane_score_label.tkraise()
 				finished_rounds+=1
-				sleep(0.25)
+				sleep(self.match_speed)
 		except RuntimeError:
 			pass
 		finally:
@@ -224,31 +265,23 @@ class BetGui(tk.Frame):
 
 		if true_finish:
 			print(f"[{star_green}] Match-Thread Ended; Rounds: {finished_rounds}/{self.rounds}")
+			self.icon1_label.config(bg="#FFFFFF")
+			self.icon2_label.config(bg="#FFFFFF")
 			
 			if azusa_score > ayane_score:
 				self.icon1_frame.config(bg="#c7fcae", image=self.shiawase_az)
-				self.azusa_score_label.config(bg="#c7fcae")
 			elif ayane_score > azusa_score:
 				self.icon2_frame.config(bg="#c7fcae", image=self.shiawase_ay)
-				self.ayane_score_label.config(bg="#c7fcae")
 			if azusa_score == ayane_score:
 				self.icon1_frame.config(bg="#b6c3d9")
-				self.icon2_frame.config(bg="#b6c3d9")	
-				self.azusa_score_label.config(bg="#b6c3d9")
-				self.ayane_score_label.config(bg="#b6c3d9")
+				self.icon2_frame.config(bg="#b6c3d9")
 
 			self.thread_stop = True
 			self.match_checker_btn.config(state=tk.ACTIVE, cursor="hand2")
 			self.window.config(cursor="ul_angle", bg="#FFFFFF")
 			self.window.title("じゃんけんぽん [Esc to return]")
 		else:
-			print(f"[{warning}] Match-Thread Ended Improperly; Rounds: {finished_rounds}/{self.rounds}")
-
-	def load(self) -> None:
-		game_thread = Thread(target=self.matches_start)
-		game_thread.start()
-		self.binds = KeyBinds(self.window, self.bindings)
-		self.binds.attach()
+			print(f"[{warning}] Match-Thread Ended Improperly or Has been stopped; Rounds: {finished_rounds}/{self.rounds}")
 
 	def keyboard_events(self, event) -> None:
 		if event.keysym == "Escape" and self.thread_stop:
@@ -256,7 +289,13 @@ class BetGui(tk.Frame):
 			Config.widgetTerminator(self.window.winfo_children())
 			MainGui(self.window)
 		elif not self.thread_stop:
-			tk.messagebox.showerror(title="じゃんけんぽん",message="Matches still running..")
+			stop_matches = tk.messagebox.askyesno(title="じゃんけんぽん",message="Matches still running.. Stop Matches?")
+			
+			if stop_matches:
+				self.thread_stop = True
+				self.binds.detach()
+				Config.widgetTerminator(self.window.winfo_children())
+				MainGui(self.window)
 
 class MainGui(tk.Frame):
 	def __init__(self, window: tk.Tk) -> None:
@@ -293,28 +332,33 @@ class MainGui(tk.Frame):
 
 		
 		self.rounds_frame = tk.Frame(self.window)
-		self.start_btn = tk.Button(self.rounds_frame, text="Start Matches", font=("Arial", 15), 
+		self.creator = tk.Label(self.window, text="created by: Nyuro\n(github: @om-prod)", bg="#FFFFFF", cursor="coffee_mug")
+		self.start_btn = tk.Button(self.rounds_frame, text="Start Matches (backspace)", font=("Arial", 15), 
 								   command=self.rounds_start, cursor="iron_cross", state=tk.DISABLED)
-		self.min_max_label = tk.Label(self.rounds_frame, text="Rounds", font=("Arial", 15),
+		self.min_max_label = tk.Label(self.rounds_frame, text="Rounds (r)", font=("Arial", 15),
 									  bg="#FFFFFF")
 		self.rounds_label = tk.Label(self.rounds_frame, text=f"Min: 5 Max: {self.max_rounds} ", 
 									 font=("Arial", 15), bg="#FFFFFF")
 		self.rounds_input = tk.Entry(self.rounds_frame, width=5, font=("Arial", 15))
+		
 		self.rounds_frame.rowconfigure(3, weight=1)
 		self.min_max_label.grid(row=0, columnspan=2, sticky="news")
 		self.rounds_label.grid(row=1, column=0, sticky="news")
 		self.rounds_input.grid(row=1, column=1, sticky="news")
 		self.start_btn.grid(row=2, columnspan=2, sticky="news")
-		self.rounds_frame.place(x=175, y=305)
+		self.rounds_frame.place(x=175, y=304)
 
 
 		self.icon1_label.place(x=25+100, y=280)
 		self.icon2_label.place(x=25+405, y=280)
 		self.icon1_frame.place(x=25, y=25)
 		self.icon2_frame.place(x=325, y=25)
+		self.creator.place(x=0, y=350)
 
 		self.bindings = {"window":{
-								"Escape":self.keyboard_events},
+								"Escape":self.keyboard_events,
+								"KeyPress-space":self.keyboard_events,
+								"KeyPress-r":self.keyboard_events},
 						"ic1_evt_region":{
 								"Enter": {"root":self.icon1_frame, "cmd":self.ic1_frames_events},
 								"Motion": {"root":self.icon1_frame, "cmd":self.ic1_frames_events},
@@ -328,7 +372,8 @@ class MainGui(tk.Frame):
 						"rounds_region":{
 								"Return":{"root":self.rounds_input, "cmd":self.keyboard_events}}
 						}
-		self.load()
+		self.binds = KeyBinds(self.window, self.bindings)
+		self.binds.attach()
 
 	def rounds_start(self) -> None:
 		if self.rounds != 0 and (self._ic1_selected or self._ic2_selected):
@@ -339,10 +384,6 @@ class MainGui(tk.Frame):
 				BetGui(self.window, self.rounds, self._selection_val)
 		else:
 			tk.messagebox.showerror(title="じゃんけんぽん", message="No Character has been selected.")
-
-	def load(self) -> None:
-		self.binds = KeyBinds(self.window, self.bindings)
-		self.binds.attach()
 
 	def ic1_frames_events(self, event: tk.Event) -> None:
 		frame_rooty = self.icon1_frame.winfo_y()
@@ -463,6 +504,10 @@ class MainGui(tk.Frame):
 	def keyboard_events(self, event) -> None | int:
 		self.mirroring_x = event.x
 
+		if event.keysym == 'space' and self.rounds > 0:
+			self.rounds_start()
+		if event.keysym == 'r':
+			self.rounds_input.focus()
 		if event.keysym == "Return":
 			try:
 				value = int(self.rounds_input.get())
@@ -470,6 +515,7 @@ class MainGui(tk.Frame):
 				if value <= self.max_rounds and value >= 5:
 					self.rounds = value
 					self.start_btn.config(state=tk.ACTIVE, cursor="hand2")
+					self.window.focus()
 				else:
 					tk.messagebox.showerror(title="Max Round Reached", message=f"Max round: {self.max_rounds}\nMin round: 5")
 					self.rounds = 0
