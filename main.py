@@ -188,7 +188,7 @@ class BetGui(tk.Frame):
 		true_finish = False
 		finished_rounds = 0
 		self.azusa_score_label.place(x=225, y=225)
-		self.ayane_score_label.place(x=375, y=225)		
+		self.ayane_score_label.place(x=365, y=225)		
 		try:
 			while finished_rounds != self.rounds and not self.thread_stop and self.window.winfo_children():
 				azusa = choice(choices)
