@@ -19,4 +19,4 @@ cd dist
 
 *Not much reason why I chose these two characters since I drew them without thinking*
 
-![til](./src/rad2.gif)
+![til](./src/two_gakis_activated.gif)
