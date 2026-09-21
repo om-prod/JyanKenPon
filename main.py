@@ -51,7 +51,7 @@ class HoverFrame(tk.Frame):
 				# Offset the widget_y by 25 and continuosly offset the sum by the y axis-
 				# inside the frame.
 				# (140 + 25) + 2 		
-		y_axis = (widget_y + 25 ) + y_axis
+		y_axis = (widget_y + 25) + y_axis
 			
 		# Checks if list already has an object
 		if len(self.frame_obj) >= 1:
@@ -333,7 +333,7 @@ class MainGui(tk.Frame):
 		
 		self.rounds_frame = tk.Frame(self.window)
 		self.creator = tk.Label(self.window, text="created by: Nyuro\n(github: @om-prod)", bg="#FFFFFF", cursor="coffee_mug")
-		self.start_btn = tk.Button(self.rounds_frame, text="Start Matches (backspace)", font=("Arial", 15), 
+		self.start_btn = tk.Button(self.rounds_frame, text="Start Matches (spacebar)", font=("Arial", 15), 
 								   command=self.rounds_start, cursor="iron_cross", state=tk.DISABLED)
 		self.min_max_label = tk.Label(self.rounds_frame, text="Rounds (r)", font=("Arial", 15),
 									  bg="#FFFFFF")
@@ -348,12 +348,11 @@ class MainGui(tk.Frame):
 		self.start_btn.grid(row=2, columnspan=2, sticky="news")
 		self.rounds_frame.place(x=175, y=304)
 
-
 		self.icon1_label.place(x=25+100, y=280)
 		self.icon2_label.place(x=25+405, y=280)
 		self.icon1_frame.place(x=25, y=25)
 		self.icon2_frame.place(x=325, y=25)
-		self.creator.place(x=0, y=350)
+		self.creator.place(x=10, y=350)
 
 		self.bindings = {"window":{
 								"Escape":self.keyboard_events,
@@ -410,13 +409,12 @@ class MainGui(tk.Frame):
 				text = "Left click to select" if not self._ic2_selected else "Left click to change"
 
 				if event.num == 1:
-					self.icon1_frame.config(bg="#bf5a82", image=self.azusa)
-					#self.icon1_label.config(bg="#73ab5e", fg="#FFFFFF")
+					self.icon1_frame.config(bg="#bf5a82", image=self.shiawase_az)
 					if self._ic2_selected:
 						self._ic2_selected = False
 						self._ic1_selected = True
 						self.icon2_frame.config(bg="#FFFFFF")
-						#self.icon2_label.config(bg="#FFFFFF", fg="#000000")						
+						self.icon2_frame.config(bg="#FFFFFF", image=self.ayane)						
 						self._selection_val = 0
 					else:
 						self._ic1_selected = True
@@ -428,7 +426,6 @@ class MainGui(tk.Frame):
 				if event.type == '6':
 					HoverFrame(text, frame_rooty, event.x-50, event.y, 10)
 					self.icon1_frame.config(bg="#f0c6f7", image=self.shiawase_az)
-					#self.icon1_label.config(bg="#c7fcae", fg="#174d02")
 					
 		else:
 			self.icon1_frame.config(cursor="ul_angle")
@@ -454,7 +451,6 @@ class MainGui(tk.Frame):
 
 					if event.num == 3:
 						self.icon2_frame.config(bg="#FFFFFF")
-						#self.icon2_label.config(bg="#FFFFFF", fg="#000000")
 						self._ic2_selected = False
 						self._selection_val = -1
 						HoverFrame.terminate(self.window)
@@ -468,13 +464,12 @@ class MainGui(tk.Frame):
 					text = "Left click to select" if not self._ic1_selected else "Left click to change"
 
 					if event.num == 1:
-						self.icon2_frame.config(bg="#bf5a82", image=self.ayane)
-						#self.icon2_label.config(bg="#73ab5e", fg="#FFFFFF")
+						self.icon2_frame.config(bg="#bf5a82", image=self.shiawase_ay)
 						if self._ic1_selected:
 							self._ic1_selected = False
 							self._ic2_selected = True
 							self.icon1_frame.config(bg="#FFFFFF")
-							#self.icon1_label.config(bg="#FFFFFF", fg="#000000")
+							self.icon1_frame.config(bg="#FFFFFF", image=self.azusa)
 							self._selection_val = 1
 						else:
 							self._ic2_selected = True	
