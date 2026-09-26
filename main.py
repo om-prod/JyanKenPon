@@ -202,20 +202,6 @@ class BetGui(tk.Frame):
 	def match_checking(self) -> None:
 		MatchesWindow(self.results)
 
-	def speedup(self) -> None:
-		if (self.match_speed <= self.max_speed 
-			and self.match_speed > self.min_speed 
-			and not self.thread_stop):
-
-			self.match_speed-=0.05
-
-	def slowdown(self) -> None:
-		if (self.match_speed < self.max_speed
-		 	and self.match_speed >= self.min_speed-.05 
-		 	and not self.thread_stop):
-
-			self.match_speed+=0.05
-
 	def matches_start(self) -> None:
 		print(f"[{star_green}] Match-Thread Started; Rounds: {self.rounds}")
 		choices = ("rock", "paper", "scissor")
@@ -258,10 +244,9 @@ class BetGui(tk.Frame):
 				self.rounds_label.config(text=f"Round: {finished_rounds+1}")
 				finished_rounds+=1
 				sleep(self.match_speed)
-		except RuntimeError:
-			pass
-		finally:
-			true_finish = True if finished_rounds == self.rounds else False
+
+		except RuntimeError: pass
+		finally: true_finish = True if finished_rounds == self.rounds else False
 
 		if true_finish:
 			print(f"[{star_green}] Match-Thread Ended; Rounds: {finished_rounds}/{self.rounds}")
@@ -282,6 +267,24 @@ class BetGui(tk.Frame):
 			self.window.title("じゃんけんぽん [Esc to return]")
 		else:
 			print(f"[{warning}] Match-Thread Ended Improperly or Has been stopped; Rounds: {finished_rounds}/{self.rounds}")
+
+	def __isMaxSpeed(self) -> bool:
+		return (self.match_speed <= self.max_speed 
+			 and self.match_speed > self.min_speed
+			 and not self.thread_stop)
+
+	def speedup(self) -> None:
+		if self.__isMaxSpeed():
+			self.match_speed-=0.05
+
+	def __isMinSpeed(self) -> bool:
+		return (self.match_speed < self.max_speed
+		 	and self.match_speed >= self.min_speed-.05 
+		 	and not self.thread_stop)
+
+	def slowdown(self) -> None:
+		if self.__isMinSpeed():
+			self.match_speed+=0.05
 
 	def keyboard_events(self, event) -> None:
 		if event.keysym == "Escape" and self.thread_stop:
